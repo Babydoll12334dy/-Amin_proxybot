@@ -1,0 +1,68 @@
+from typing inport Final
+TOKEN final = 7717274052:AAEGANhEGF4KwlSBktoF1P0pDbeNWdxPCwE
+BOT USERNAME: Final = @Amin_proxy_bot
+
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+# /start কমান্ডে স্বাগত মেসেজ
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("স্বাগতম! আপনি কি প্রক্সি কিনতে চান? টাইপ করুন /buy")
+
+# /buy কমান্ডে প্রোডাক্ট বা সার্ভিস অফার
+async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("আপনি কী ধরনের প্রক্সি চান? 1) জার্মানি 2) ইউএসএ 3) UK")
+
+# /help কমান্ডে সাহায্য
+from telegram import Bot, Update
+from telegram.ext import CommandHandler, Updater
+
+TOKEN = "YOUR_BOT_TOKEN"
+
+def start(update, context):
+    proxy_link = "tg://proxy?server=1.2.3.4&port=443&secret=abcdef123456"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"আপনার প্রোক্সি লিংক:\n{proxy_link}")
+
+updater = Updater(token=TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(CommandHandler("start", start))
+updater.start_polling()
+
+from telegram.ext import CommandHandler, MessageHandler, Filters, Updater
+
+TOKEN = 'YOUR_BOT_TOKEN'
+PAYMENT_NUMBERS = """
+আপনি নিচের নাম্বারে পেমেন্ট করুন:
+
+বিকাশ: 01317180179 (Personal)
+নগদ: 01604149424 (Personal)
+
+পরিমাণ: ২০০ টাকা (৩0দিনের প্রিমিয়াম)
+
+পেমেন্ট করে ট্রানজেকশন আইডি নিচে পাঠান।
+"""
+
+pending_users = {}
+
+def buy(update, context):
+    user_id = update.message.from_user.id
+    pending_users[user_id] = True
+    update.message.reply_text(PAYMENT_NUMBERS)
+
+def handle_transaction_id(update, context):
+    user_id = update.message.from_user.id
+    if user_id in pending_users:
+        trx_id = update.message.text.strip()
+        # এখানে তুমি চাইলে এই ID-টা লগ করে রাখতে পারো, বা Admin-এ পাঠাতে পারো
+        context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"User {user_id} sent trxID: {trx_id}")
+        update.message.reply_text("আপনার পেমেন্ট রিভিউ করা হচ্ছে। অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন।")
+        # এরপর তুমি ম্যানুয়ালি কনফার্ম করে `/approve` দিয়ে রেসপন্স দিতে পারো
+    else:
+        update.message.reply_text("প্রথমে /buy লিখে পেমেন্ট প্রসেস শুরু করুন।")
+
+updater = Updater(TOKEN)
+dp = updater.dispatcher
+dp.add_handler(CommandHandler('buy', buy))
+dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_transaction_id))
+
+updater.start_polling()
